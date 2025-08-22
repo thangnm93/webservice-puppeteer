@@ -1,5 +1,6 @@
 import express from "express";
 import puppeteer from "puppeteer-extra";
+import chromium from "chromium";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
 
 puppeteer.use(StealthPlugin());
@@ -16,6 +17,7 @@ app.get("/scrape", async (req, res) => {
   try {
     const browser = await puppeteer.launch({
       headless: true,
+      executablePath: chromium.path, // Dùng binary chromium
       args: ["--no-sandbox", "--disable-setuid-sandbox"],
     });
 
