@@ -10,6 +10,7 @@ const PORT = process.env.PORT || 3000;
 
 app.get("/scrape", async (req, res) => {
   const tn = req.query.tn;
+  console.log("new request:", req.query);
   if (!tn) return res.status(400).json({ error: "Missing tn" });
 
   const url = `https://mailingtechnology.com/tracking/?tn=${tn}`;
@@ -37,6 +38,7 @@ app.get("/scrape", async (req, res) => {
 
     res.json({ tn, html });
   } catch (err) {
+    console.error("error:", err);
     res.status(500).json({ error: err.message });
   }
 });
