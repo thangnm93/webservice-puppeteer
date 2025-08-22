@@ -9,6 +9,8 @@
     "express": "*",
     "puppeteer": "*",
     "puppeteer-core": "*",
+    "puppeteer-extra": "*",
+    "puppeteer-extra-plugin-stealth": "*",
     "chromium": "*"
   }
 }
