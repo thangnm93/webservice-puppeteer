@@ -16,6 +16,8 @@ app.get("/scrape", async (req, res) => {
   const url = `https://mailingtechnology.com/tracking/?tn=${tn}`;
 
   try {
+    var timeLabel = `scrape-${tn}`;
+    console.time(timeLabel);
     const browser = await puppeteer.launch({
       headless: true,
       executablePath: chromium.path, // Dùng binary chromium
@@ -37,6 +39,7 @@ app.get("/scrape", async (req, res) => {
     await browser.close();
 
     res.json({ tn, html });
+    console.timeEnd(timeLabel);
   } catch (err) {
     console.error("error:", err);
     res.status(500).json({ error: err.message });
