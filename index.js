@@ -1,48 +1,34 @@
 import express from "express";
-import puppeteer from "puppeteer";
+import puppeteer from "puppeteer-core";
+import chromium from "chromium";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.get("/scrape", async (req, res) => {
-  const trackingNumber = req.query.tn;
+  const tn = req.query.tn;
+  if (!tn) return res.status(400).json({ error: "Missing tn" });
 
-  if (!trackingNumber) {
-    return res.status(400).json({ error: "Missing tn (tracking number)" });
-  }
-
-  const url = `https://mailingtechnology.com/tracking/?tn=${trackingNumber}`;
+  const url = `https://mailingtechnology.com/tracking/?tn=${tn}`;
 
   try {
     const browser = await puppeteer.launch({
       headless: true,
+      executablePath: chromium.path, // Dùng binary chromium
       args: ["--no-sandbox", "--disable-setuid-sandbox"],
     });
+
     const page = await browser.newPage();
     await page.goto(url, { waitUntil: "networkidle2" });
 
-    // lấy HTML (nếu bạn muốn tự parse bằng PHP)
     const html = await page.content();
-
-    // ví dụ: lấy text đầu tiên có class "tracking-result"
-    const trackingData = await page.evaluate(() => {
-      const node = document.querySelector(".tracking-result");
-      return node ? node.innerText.trim() : null;
-    });
 
     await browser.close();
 
-    res.json({
-      trackingNumber,
-      html,          // toàn bộ HTML
-      trackingData,  // text đã parse sơ bộ
-    });
+    res.json({ tn, html });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Scraping failed", details: err.message });
+    res.status(500).json({ error: err.message });
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+app.listen(PORT, () => console.log(`Server running on ${PORT}`));
